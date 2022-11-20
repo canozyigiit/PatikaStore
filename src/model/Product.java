@@ -1,3 +1,7 @@
+package model;
+
+import model.Brand;
+
 import java.util.UUID;
 
 public abstract class Product{

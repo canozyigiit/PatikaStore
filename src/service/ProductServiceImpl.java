@@ -1,33 +1,81 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+package service;
 
-public class ProductServiceImpl implements ProductService{
+import model.Brand;
+import model.Notebook;
+import model.Phone;
+import model.Product;
+import service.ProductService;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class ProductServiceImpl implements ProductService {
 
     public static List<Product> products = new ArrayList<>();
+    public static List<Phone> phones = new ArrayList<>();
+    public static List<Notebook> notebooks = new ArrayList<>();
+
 
     @Override
-    public List<Product> getProductsByProductGroup(String productGroup) {
-        return products.stream()
-                .filter(x-> x.getProductGroup() == productGroup)
-                .collect(Collectors.toList());
+    public void getProductsByProductGroup(String productGroup) {
+        Formatter fmt = new Formatter();
+        if (productGroup.equals("PHONE")){
+            fmt.format( "%15s  %12s  %12s   %12s   %12s   %12s   %8s   %8s  %8s  %8s  %8s  \n", "|Ürün Adı| ", "|Marka|", "|Stok|", "|Birim Fiyatı|","|İndirim Oranı|","|Ürün Kategorisi|","|Renk|","|Ram|","|Ekran Boyutu|","|Pil Gücü|","|Hafıza Bilgisi|");
+            phones.stream()
+                    .filter(x-> x.getProductGroup() == productGroup)
+                    .collect(Collectors.toList())
+                    .forEach(x -> {
+                        fmt.format("%1s  %10s  %12s   %12s   %12s   %12s   %16s   %9s  %12s  %12s  %12s  \n",  x.getName(), x.getBrand().getName(), x.getStock(), x.getUnitPrice(),
+                                x.getDiscountRate(), x.getProductGroup(), x.getColor(), x.getRam(),
+                                x.getScreenSize(), x.getBatteryPower(), x.getMemoryInformation());
+
+
+                    });
+            System.out.println(fmt);
+
+        }else if(productGroup.equals("NOTEBOOK")){
+            fmt.format("%5s  %7s  %12s   %12s   %12s   %12s   %8s   %8s  %8s\n", "|Ürün Adı| ", "|Marka|", "|Stok|", "|Birim Fiyatı|","|İndirim Oranı|","|Ürün Kategorisi|","|Hafıza|","|Ram|","|Ekran Boyutu|");
+            notebooks.stream()
+                    .filter(x-> x.getProductGroup() == productGroup)
+                    .collect(Collectors.toList())
+                    .forEach(x -> {
+                        fmt.format("%1s  %10s  %12s   %8s   %17s   %14s   %15s   %9s  %12s\n",  x.getName(), x.getBrand().getName(), x.getStock(), x.getUnitPrice(),
+                                x.getDiscountRate(), x.getProductGroup(), x.getStorage(), x.getRam(),
+                                x.getScreenSize());
+
+                    });
+            System.out.println(fmt);
+
+        }
+
     }
 
+
+
     @Override
-    public boolean saveProduct(Product product) {
+    public boolean saveProduct(Product product,String productGroup) {
+        if (productGroup.equals("PHONE"))
+            phones.add((Phone) product);
+        else
+            notebooks.add((Notebook) product);
         return products.add(product);
     }
 
     @Override
     public void getProducts() {
+        Formatter fmt = new Formatter();
+        fmt.format("%17s %17s %17s %17s %17s %17s\n", "|Ürün Adı| ", "|Marka|", "|Stok|", "|Birim Fiyatı|","|İndirim Oranı|","|Ürün Kategorisi|");
 
         products.forEach(x -> {
-            System.out.println("Ürün Adı : " + x.getName() + " ,Marka : " + x.getBrand().getName() + " ,Stok : " + x.getStock()
-                    + " ,Birim Fiyatı : " + x.getUnitPrice() + " ,İndirim Oranı : " + x.getDiscountRate()
-            );
-        });
+            fmt.format("%17s %17s %15s %15s %15s %15s \n",  x.getName(), x.getBrand().getName(), x.getStock(), x.getUnitPrice(),
+                    x.getDiscountRate(), x.getProductGroup());
+                });
+        System.out.println(fmt);
+
+
     }
+
 
     @Override
     public Product deleteProduct(UUID id) {
@@ -47,5 +95,34 @@ public class ProductServiceImpl implements ProductService{
     public List<Product> getProductsByBrand(String brand) {
         return products.stream()
                 .filter(x-> x.getBrand().getName() == brand).collect(Collectors.toList());
+    }
+
+
+    private static void tableFormat( String[][] table) {
+        boolean leftJustifiedRows = false;
+
+        Map<Integer, Integer> columnLengths = new HashMap<>();
+        Arrays.stream(table).forEach(a -> Stream.iterate(0, (i -> i < a.length), (i -> ++i)).forEach(i -> {
+            if (columnLengths.get(i) == null) {
+                columnLengths.put(i, 0);
+            }
+            if (columnLengths.get(i) < a[i].length()) {
+                columnLengths.put(i, a[i].length());
+            }
+        }));
+
+        /*
+         * Prepare format String
+         */
+        final StringBuilder formatString = new StringBuilder("");
+        String flag = leftJustifiedRows ? "-" : "";
+        columnLengths.entrySet().stream().forEach(e -> formatString.append("| %" + flag + e.getValue() + "s "));
+        formatString.append("|\n");
+
+        /*
+         * Print table
+         */
+        Stream.iterate(0, (i -> i < table.length), (i -> ++i))
+                .forEach(a -> System.out.printf(formatString.toString(), table[a]));
     }
 }

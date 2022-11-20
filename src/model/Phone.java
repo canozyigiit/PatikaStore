@@ -1,6 +1,10 @@
+package model;
+
+import model.Brand;
+
 import java.util.UUID;
 
-public class Phone extends Product{
+public class Phone extends Product {
 
     private static final String productGroup = "PHONE";
     private int memoryInformation;

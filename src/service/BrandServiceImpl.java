@@ -1,9 +1,14 @@
+package service;
+
+import model.Brand;
+import service.BrandService;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class BrandServiceImpl implements BrandService{
+public class BrandServiceImpl implements BrandService {
 
 
     public static List<Brand> brands = new ArrayList<>();
